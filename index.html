@@ -303,6 +303,12 @@ body{background:var(--paper)}
 .map .alt .go{position:absolute;right:16px;bottom:16px;font:400 10px var(--f-ui);font-style:normal;letter-spacing:.28em;text-transform:uppercase;color:#fff;background:var(--ink);padding:11px 16px}
 .map .alt:hover .go{background:var(--accent)}
 .map .alt:focus-visible{outline:1px solid var(--gold);outline-offset:4px}
+
+/* keep the page from sliding sideways on phones */
+html{overflow-x:hidden}
+body{overflow-x:clip;max-width:100%}
+section,.band,.hero,.rsvp,.dark{overflow-x:clip}
+#intro video{pointer-events:none}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -342,9 +348,8 @@ body{background:var(--paper)}
 <!-- engagement video -->
 <div id="intro" hidden>
   <div class="blur" id="introBlur"></div>
-  <video id="introVid" playsinline preload="auto"></video>
-  <button class="ghost" id="soundBtn" type="button" hidden>Tap for sound</button>
-  <button class="ghost" id="skipBtn" type="button">Skip</button>
+  <video id="introVid" playsinline muted preload="auto"></video>
+    <button class="ghost" id="skipBtn" type="button">Skip</button>
 </div>
 
 <button id="musicBtn" type="button" aria-label="Play music" hidden><span class="bars"><i></i><i></i><i></i></span></button>
@@ -670,7 +675,7 @@ function showInvite(){
   const i=$("intro"); if(i.classList.contains("out")) return;
   clearTimeout(introTimer); i.classList.add("out");
   document.body.classList.remove("locked"); scrollTo(0,0);
-  if(song){ wantSong=true; playSong(); }
+  if(song&&!playing&&!userPaused){ wantSong=true; playSong(); }
   startPetals();
   armedAt=Date.now(); lastY=scrollY;
   setTimeout(()=>{ i.hidden=true; $("introVid").pause(); },1150);
@@ -679,16 +684,16 @@ function openInvite(){
   if(opened) return; opened=true;
   const v=$("introVid"), i=$("intro");
   $("cover").classList.add("out"); setTimeout(()=>$("cover").hidden=true,1250);
-  if(!W.introVideo){ i.hidden=true; showInvite(); return; }
-  primeSong();
+  if(!W.introVideo){ i.hidden=true; wantSong=true; showInvite(); return; }
+  wantSong=true; playSong();            /* the song starts with the video and keeps going */
   $("introBlur").style.backgroundImage=`url("${W.introPoster}")`; v.poster=W.introPoster;
   i.hidden=false;
   v.onended=showInvite; v.onerror=showInvite;
+  v.muted=true; v.defaultMuted=true; v.volume=0;
   v.src=W.introVideo;
-  v.play().catch(()=>{ v.muted=true; v.play().then(()=>{ $("soundBtn").hidden=false; }).catch(showInvite); });
+  v.play().catch(showInvite);
   introTimer=setTimeout(showInvite,45000);
 }
-$("soundBtn").onclick=()=>{ const v=$("introVid"); v.muted=false; v.play().catch(()=>{}); $("soundBtn").hidden=true; };
 $("skipBtn").onclick=showInvite;
 /* falling petals: start once the invitation is open */
 let petalsOn=false;
