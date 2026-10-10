@@ -354,6 +354,9 @@ body.reveal nav{animation:fadeIn 1s ease both .9s}
 @keyframes bloom{from{opacity:0;scale:.4}to{opacity:1;scale:1}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){#fx{display:none} body.reveal *{animation-duration:.01s!important} #intro.out{animation:none;opacity:0!important;transition:opacity .4s!important}}
+
+/* Skip sits at the top so the phone's bottom browser bar never covers it */
+#skipBtn{top:calc(16px + env(safe-area-inset-top,0px))!important;right:16px!important;bottom:auto!important}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
