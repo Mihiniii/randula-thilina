@@ -367,6 +367,8 @@ html.pre:not(.vid),html.pre:not(.vid) body{background:#3a2a22 url("assets/cover.
 html.pre.vid,html.pre.vid body{background:#000!important}
 #cover{top:calc(-1 * env(safe-area-inset-top,0px))!important;bottom:calc(-1 * env(safe-area-inset-bottom,0px))!important;min-height:calc(100lvh + env(safe-area-inset-top,0px) + env(safe-area-inset-bottom,0px))}
 #cover .cover-in{padding-top:calc(24px + env(safe-area-inset-top,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+
+html.pre:not(.vid),html.pre:not(.vid) body{background-color:var(--edge-bot,#3a2a22)!important}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -648,6 +650,27 @@ document.querySelectorAll('nav a[href^="#"]').forEach(a=>a.addEventListener("cli
   const t=document.querySelector(a.getAttribute("href")); if(!t) return;
   e.preventDefault(); t.scrollIntoView({behavior:"smooth"});
 }));
+
+
+/* Safari paints its top and bottom bars in one solid colour. Pick that colour from the
+   cover photo's own top and bottom edges so the bars blend into the photo. */
+(function(){
+  const img=new Image();
+  img.onload=()=>{
+    try{
+      const c=document.createElement("canvas"); c.width=40; c.height=60; const x=c.getContext("2d");
+      x.drawImage(img,0,0,40,60);
+      const avg=(y0,y1)=>{ const d=x.getImageData(0,y0,40,y1-y0).data; let r=0,g=0,b=0,n=0;
+        for(let i=0;i<d.length;i+=4){ r+=d[i]; g+=d[i+1]; b+=d[i+2]; n++; }
+        const k=.72; return `rgb(${Math.round(r/n*k)},${Math.round(g/n*k)},${Math.round(b/n*k)})`; };
+      const top=avg(0,4), bot=avg(56,60);
+      let m=document.querySelector('meta[name="theme-color"]'); if(!m){ m=document.createElement("meta"); m.name="theme-color"; document.head.append(m); }
+      m.content=top;
+      const s=document.documentElement.style; s.setProperty("--edge-top",top); s.setProperty("--edge-bot",bot);
+    }catch(e){}
+  };
+  img.src="assets/cover.jpg";
+})();
 
 /* links */
 $("formBtn").href = W.rsvpFormUrl;
