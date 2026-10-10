@@ -309,6 +309,11 @@ html{overflow-x:hidden}
 body{overflow-x:clip;max-width:100%}
 section,.band,.hero,.rsvp,.dark{overflow-x:clip}
 #intro video{pointer-events:none}
+
+/* personal guest name */
+.dear{font:400 clamp(30px,8vw,44px)/1.1 var(--f-script);color:#fde6d6;margin:0 0 4px;text-shadow:0 2px 18px rgba(0,0,0,.35)}
+.dear span{color:#fff}
+.guest-name{display:block;font:400 clamp(30px,6vw,40px)/1.3 var(--f-script);font-style:normal;color:var(--accent);margin:6px 0}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -337,6 +342,7 @@ section,.band,.hero,.rsvp,.dark{overflow-x:clip}
 <div id="cover" role="dialog" aria-label="Wedding invitation cover">
   <div class="bg"></div>
   <div class="cover-in">
+    <p class="dear" id="dearCover" hidden>Dear <span></span></p>
     <p class="label">The wedding of</p>
     <h1 class="cover-names">Randula<i>and</i>Thilina</h1>
     <p class="cover-date">27 · 01 · 2027</p>
@@ -372,7 +378,7 @@ section,.band,.hero,.rsvp,.dark{overflow-x:clip}
       <p class="mono">R &amp; T</p>
       <p class="label">Together with their families</p>
       <h2 class="names">Randula<i>and</i>Thilina</h2>
-      <p class="lede">request the honour of your presence as they begin their life together</p>
+      <p class="lede" id="heroLede">request the honour of your presence as they begin their life together</p>
       <div class="when" aria-label="Wedding date">
         <span>Wednesday</span><b>27</b><span>2027</span>
         <small>January · Eagle Hall, Waters Edge</small>
@@ -566,6 +572,28 @@ const el = (t,p={},k=[]) => { const n=Object.assign(document.createElement(t),p)
   document.documentElement.style.setProperty("--bq1",`url("${bouquet(3,sz)}")`);
   document.documentElement.style.setProperty("--bq2",`url("${bouquet(8,sz)}")`);
 })();
+
+/* personal invitation: a guest's name after # in the link, e.g. .../randula-thilina/#Vishma
+   (hyphens become spaces: #Sachini-and-Family → "Sachini and Family"; ?to=Name also works) */
+(function(){
+  const sections=["top","events","gallery","venue","rsvp","story"];
+  let name="";
+  try{
+    const h=decodeURIComponent((location.hash||"").slice(1));
+    if(h && !sections.includes(h.toLowerCase())) name=h.replace(/[-_+]+/g," ");
+    if(!name) name=new URLSearchParams(location.search).get("to")||"";
+  }catch(e){}
+  name=name.replace(/\s+/g," ").trim().slice(0,70);
+  if(!name) return;
+  const d=$("dearCover"); d.querySelector("span").textContent=name; d.hidden=false;
+  const l=$("heroLede"); l.replaceChildren("request the honour of the presence of ", el("strong",{className:"guest-name",textContent:name}), " as they begin their life together");
+  document.title = name + " · Randula & Thilina";
+})();
+/* menu links scroll without changing the address, so the guest's link stays clean */
+document.querySelectorAll('nav a[href^="#"]').forEach(a=>a.addEventListener("click",e=>{
+  const t=document.querySelector(a.getAttribute("href")); if(!t) return;
+  e.preventDefault(); t.scrollIntoView({behavior:"smooth"});
+}));
 
 /* links */
 $("formBtn").href = W.rsvpFormUrl;
