@@ -314,6 +314,15 @@ section,.band,.hero,.rsvp,.dark{overflow-x:clip}
 .dear{font:400 clamp(30px,8vw,44px)/1.1 var(--f-script);color:#fde6d6;margin:0 0 4px;text-shadow:0 2px 18px rgba(0,0,0,.35)}
 .dear span{color:#fff}
 .guest-name{display:block;font:400 clamp(30px,6vw,40px)/1.3 var(--f-script);font-style:normal;color:var(--accent);margin:6px 0}
+
+/* full-screen engagement video: nothing from the invitation shows until it ends */
+#intro{z-index:9999!important;top:0;left:0;right:0;bottom:auto!important;width:100%;height:100vh;height:100lvh;background:#000!important}
+#intro:fullscreen{width:100vw;height:100vh}
+#intro .blur{display:none}
+#intro video{object-fit:cover!important}
+@media (min-aspect-ratio:4/3){ #intro .blur{display:block} #intro video{object-fit:contain!important} }
+#cover{transition:opacity .6s ease,visibility .6s!important}
+#skipBtn{z-index:3}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -677,22 +686,21 @@ addEventListener("keydown",e=>{ if($("lb").hidden) return; if(e.key==="Escape") 
 let tx=null; $("lb").addEventListener("touchstart",e=>tx=e.touches[0].clientX,{passive:true});
 $("lb").addEventListener("touchend",e=>{ if(tx==null) return; const dx=e.changedTouches[0].clientX-tx; if(Math.abs(dx)>50) showLB(li+(dx<0?1:-1)); tx=null; });
 
-/* music: starts after the video and keeps playing (the button pauses it) */
-const song = W.song ? new Audio() : null; let songOk=false, playing=false;
-let wantSong=false;
-if (song){ song.loop=true; song.preload="auto"; song.addEventListener("canplay",()=>{ songOk=true; },{once:true}); song.addEventListener("error",()=>{ songOk=false; }); song.src=W.song; }
+/* music: starts with the video and keeps playing; the button pauses and resumes it */
+const song = W.song ? new Audio() : null; let songOk=false, playing=false, wantSong=false, userPaused=false, needTap=false;
+if (song){ song.loop=true; song.preload="auto"; song.addEventListener("canplay",()=>{ songOk=true; },{once:true}); song.src=W.song; }
 function setBtn(){ const b=$("musicBtn"); b.classList.toggle("on",playing); b.setAttribute("aria-label",playing?"Pause music":"Play music"); }
-function primeSong(){ if(!song) return; song.volume=0; const p=song.play(); if(p) p.then(()=>{ if(!playing){ song.pause(); song.currentTime=0; } }).catch(()=>{}); }
-function playSong(){ if(!song) return; song.volume=.8; $("musicBtn").hidden=false;
-  song.play().then(()=>{ playing=true; setBtn(); }).catch(()=>{ needTap=true; }); }
-let needTap=false;
-/* if the browser blocked the song, start it on the guest's next tap */
-["pointerdown","touchstart","keydown"].forEach(ev=>addEventListener(ev,()=>{ if(needTap&&wantSong&&!playing){ needTap=false; playSong(); } },{passive:true}));
-/* keep the song going: resume it if the browser pauses it on its own */
-if(song) song.addEventListener("pause",()=>{ if(playing&&!userPaused) setTimeout(()=>{ if(playing&&song.paused) song.play().catch(()=>{ needTap=true; }); },300); });
-let userPaused=false;
-function stopSong(){ if(!song||!playing) return; userPaused=true; playing=false; setBtn(); const f=()=>{ if(playing) return; song.volume=Math.max(0,song.volume-.08); song.volume>0?setTimeout(f,60):song.pause(); }; f(); }
-$("musicBtn").onclick=()=>{ if(playing) stopSong(); else { userPaused=false; playSong(); } };
+function playSong(){
+  if(!song) return; $("musicBtn").hidden=false; userPaused=false; wantSong=true;
+  playing=true; setBtn();
+  const p=song.play(); if(p) p.catch(()=>{ playing=false; setBtn(); needTap=true; });
+}
+function stopSong(){ if(!song) return; userPaused=true; playing=false; song.pause(); setBtn(); }
+$("musicBtn").addEventListener("click",e=>{ e.stopPropagation(); needTap=false; (playing&&!song.paused)?stopSong():playSong(); });
+/* if the browser blocked the song, start it on the guest's next tap (not on the music button) */
+addEventListener("pointerdown",e=>{ if(needTap&&wantSong&&!userPaused&&!e.target.closest("#musicBtn")){ needTap=false; playSong(); } },{passive:true});
+/* if the phone pauses the song on its own (call, other app), resume it when the guest comes back */
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&wantSong&&!userPaused&&song&&song.paused){ song.play().catch(()=>{ needTap=true; }); } });
 let armedAt=0, lastY=0;
 
 
@@ -703,7 +711,8 @@ function showInvite(){
   const i=$("intro"); if(i.classList.contains("out")) return;
   clearTimeout(introTimer); i.classList.add("out");
   document.body.classList.remove("locked"); scrollTo(0,0);
-  if(song&&!playing&&!userPaused){ wantSong=true; playSong(); }
+  if(song&&!userPaused&&song.paused){ playSong(); }
+  try{ if(document.fullscreenElement) document.exitFullscreen(); else if(document.webkitFullscreenElement) document.webkitExitFullscreen(); }catch(e){}
   startPetals();
   armedAt=Date.now(); lastY=scrollY;
   setTimeout(()=>{ i.hidden=true; $("introVid").pause(); },1150);
@@ -712,8 +721,9 @@ function openInvite(){
   if(opened) return; opened=true;
   const v=$("introVid"), i=$("intro");
   $("cover").classList.add("out"); setTimeout(()=>$("cover").hidden=true,1250);
-  if(!W.introVideo){ i.hidden=true; wantSong=true; showInvite(); return; }
-  wantSong=true; playSong();            /* the song starts with the video and keeps going */
+  if(!W.introVideo){ i.hidden=true; showInvite(); return; }
+  playSong();                           /* the song starts with the video and keeps going */
+  try{ const fs=i.requestFullscreen||i.webkitRequestFullscreen; if(fs) { const r=fs.call(i,{navigationUI:"hide"}); if(r&&r.catch) r.catch(()=>{}); } }catch(e){}
   $("introBlur").style.backgroundImage=`url("${W.introPoster}")`; v.poster=W.introPoster;
   i.hidden=false;
   v.onended=showInvite; v.onerror=showInvite;
