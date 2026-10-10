@@ -321,7 +321,7 @@ section,.band,.hero,.rsvp,.dark{overflow-x:clip}
 #intro .blur{display:none}
 #intro video{object-fit:cover!important}
 @media (min-aspect-ratio:4/3){ #intro .blur{display:block} #intro video{object-fit:contain!important} }
-#cover{transition:opacity .6s ease,visibility .6s!important}
+#cover{transition:opacity 1.6s ease,visibility 1.6s!important}
 #skipBtn{z-index:3}
 
 /* until the invitation opens, show only the cover/video (no page peeking under the phone's browser bar) */
@@ -332,24 +332,24 @@ html.pre body > :not(#cover):not(#intro):not(#petals):not(#fx){visibility:hidden
 /* ===== magic transitions ===== */
 #fx{position:fixed;inset:0;z-index:10001;pointer-events:none}
 /* the cover glows while the fairy flies */
-body.magic #cover .cover-in{animation:glowup 1.3s ease forwards}
+body.magic #cover .cover-in{animation:glowup 2.8s ease forwards}
 @keyframes glowup{to{filter:brightness(1.25) blur(1px);transform:scale(1.03);opacity:.85}}
 #cover .btn{position:relative;overflow:hidden}
-#cover .btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,240,210,.55) 50%,transparent 70%);transform:translateX(-120%);animation:shine 3.2s ease-in-out infinite}
+#cover .btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,240,210,.55) 50%,transparent 70%);transform:translateX(-120%);animation:shine 4.8s ease-in-out infinite}
 @keyframes shine{60%,100%{transform:translateX(120%)}}
 /* the video fades in out of a soft golden light */
-#intro{opacity:0;transition:opacity 1s ease!important}
+#intro{opacity:0;transition:opacity 2s ease!important}
 #intro.show{opacity:1}
 #intro::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 45%,rgba(255,236,200,.95),rgba(255,236,200,0) 70%);opacity:0}
-#intro.show::after{animation:bloomout 1.4s ease}
+#intro.show::after{animation:bloomout 2.6s ease}
 @keyframes bloomout{0%{opacity:1}100%{opacity:0}}
 /* when the video ends: the video shrinks away in a circle of light and the invitation rises in */
-#intro.out{opacity:1!important;animation:iris 1.3s cubic-bezier(.7,0,.3,1) forwards}
+#intro.out{opacity:1!important;animation:iris 2.6s cubic-bezier(.65,0,.35,1) forwards}
 @keyframes iris{0%{clip-path:circle(150% at 50% 45%)}100%{clip-path:circle(0% at 50% 45%)}}
-body.reveal .hero .arch-card{animation:riseIn 1.5s cubic-bezier(.2,.8,.2,1) both .35s}
-body.reveal .hero-photo{animation:riseIn 1.5s cubic-bezier(.2,.8,.2,1) both .6s}
-body.reveal .bq{animation:bloom 1.6s cubic-bezier(.2,.9,.3,1.2) both .5s}
-body.reveal nav{animation:fadeIn 1s ease both .9s}
+body.reveal .hero .arch-card{animation:riseIn 2.6s cubic-bezier(.2,.8,.2,1) both .9s}
+body.reveal .hero-photo{animation:riseIn 2.6s cubic-bezier(.2,.8,.2,1) both 1.5s}
+body.reveal .bq{animation:bloom 2.8s cubic-bezier(.2,.9,.3,1.15) both 1.2s}
+body.reveal nav{animation:fadeIn 1.8s ease both 2.2s}
 @keyframes riseIn{from{opacity:0;transform:translateY(40px) scale(.96);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @keyframes bloom{from{opacity:0;scale:.4}to{opacity:1;scale:1}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -357,6 +357,10 @@ body.reveal nav{animation:fadeIn 1s ease both .9s}
 
 /* Skip sits at the top so the phone's bottom browser bar never covers it */
 #skipBtn{top:calc(16px + env(safe-area-inset-top,0px))!important;right:16px!important;bottom:auto!important}
+
+#fsBtn{left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;padding:16px 26px!important;font-size:11px!important;letter-spacing:.3em!important;background:rgba(20,14,10,.35)!important;border-color:rgba(255,240,215,.75)!important;animation:fsPulse 2.6s ease-in-out infinite}
+#fsBtn::before{content:"⤢";font-size:15px;letter-spacing:0;margin-right:10px;vertical-align:-1px}
+@keyframes fsPulse{50%{box-shadow:0 0 0 10px rgba(255,236,200,.12)}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -399,6 +403,7 @@ body.reveal nav{animation:fadeIn 1s ease both .9s}
   <div class="blur" id="introBlur"></div>
   <video id="introVid" playsinline muted preload="auto"></video>
     <button class="ghost" id="skipBtn" type="button">Skip</button>
+  <button class="ghost" id="fsBtn" type="button" hidden>Watch full screen</button>
 </div>
 
 <button id="musicBtn" type="button" aria-label="Play music" hidden><span class="bars"><i></i><i></i><i></i></span></button>
@@ -744,22 +749,23 @@ let opened=false, introTimer=null;
 function showInvite(){
   const i=$("intro"); if(i.classList.contains("out")) return;
   clearTimeout(introTimer); i.classList.add("out"); document.documentElement.classList.remove("pre");
-  document.body.classList.add("reveal"); setTimeout(()=>document.body.classList.remove("reveal","magic"),2600);
-  FX.burst(innerWidth/2,innerHeight*.45,120); setTimeout(()=>FX.shower(70),250);
+  document.body.classList.add("reveal"); setTimeout(()=>document.body.classList.remove("reveal","magic"),5200);
+  FX.burst(innerWidth/2,innerHeight*.45,110); setTimeout(()=>FX.shower(60),600);
   document.body.classList.remove("locked"); scrollTo(0,0);
   if(song&&!userPaused&&song.paused){ playSong(); }
   try{ if(document.fullscreenElement) document.exitFullscreen(); else if(document.webkitFullscreenElement) document.webkitExitFullscreen(); }catch(e){}
+  try{ const v=$("introVid"); $("fsBtn").hidden=true; if(v.webkitDisplayingFullscreen) v.webkitExitFullscreen(); }catch(e){}
   startPetals();
   armedAt=Date.now(); lastY=scrollY;
-  setTimeout(()=>{ i.hidden=true; $("introVid").pause(); },1300);
+  setTimeout(()=>{ i.hidden=true; $("introVid").pause(); },2700);
 }
 function openInvite(){
   if(opened) return; opened=true;
   const v=$("introVid"), i=$("intro");
   const b=$("openBtn").getBoundingClientRect();
   document.body.classList.add("magic");
-  FX.fairy(b.left+b.width/2,b.top+b.height/2,()=>{ $("cover").classList.add("out"); setTimeout(()=>$("cover").hidden=true,900); i.classList.add("show"); });
-  if(!W.introVideo){ setTimeout(()=>{ $("cover").classList.add("out"); i.hidden=true; showInvite(); },1300); return; }
+  FX.fairy(b.left+b.width/2,b.top+b.height/2,()=>{ $("cover").classList.add("out"); setTimeout(()=>$("cover").hidden=true,1800); i.classList.add("show"); if(iosFS()) setTimeout(()=>{ if(!i.classList.contains("out")) $("fsBtn").hidden=false; },900); });
+  if(!W.introVideo){ setTimeout(()=>{ $("cover").classList.add("out"); i.hidden=true; showInvite(); },2800); return; }
   playSong();                           /* the song starts with the video and keeps going */
   try{ const d=document.documentElement, fs=d.requestFullscreen||d.webkitRequestFullscreen; if(fs) { const r=fs.call(d,{navigationUI:"hide"}); if(r&&r.catch) r.catch(()=>{}); } }catch(e){}
   $("introBlur").style.backgroundImage=`url("${W.introPoster}")`; v.poster=W.introPoster;
@@ -771,6 +777,9 @@ function openInvite(){
   introTimer=setTimeout(showInvite,45000);
 }
 $("skipBtn").onclick=showInvite;
+/* iPhone: Safari only allows full screen through its own video player, so offer it with one tap */
+function iosFS(){ const v=$("introVid"); return !(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen) && typeof v.webkitEnterFullscreen==="function"; }
+$("fsBtn").onclick=e=>{ e.stopPropagation(); const v=$("introVid"); $("fsBtn").hidden=true; try{ v.play().catch(()=>{}); v.webkitEnterFullscreen(); }catch(err){} };
 /* ===== magic: fairy dust on "Open invitation", sparkle reveal when the video ends ===== */
 const FX=(function(){
   const c=document.createElement("canvas"); c.id="fx"; c.setAttribute("aria-hidden","true"); document.body.append(c);
@@ -800,24 +809,24 @@ const FX=(function(){
   function go(){ if(!running){ running=true; requestAnimationFrame(loop); } }
   /* a little fairy flies from the button in a swirl, sprinkling dust, then bursts */
   function fairy(sx,sy,done){
-    const t0=performance.now(), dur=1300, cx=w/2, cy=h*.42;
+    const t0=performance.now(), dur=2800, cx=w/2, cy=h*.42;
     add({x:sx,y:sy,r:7,life:dur/1000+.2,col:"#fffbe8",orb:p=>{
       const t=Math.min(1,(performance.now()-t0)/dur), e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
       const ang=e*Math.PI*3.2, rad=(1-e)*Math.min(w,h)*.32+20;
       p.x=sx+(cx-sx)*e+Math.cos(ang)*rad*Math.sin(e*Math.PI); p.y=sy+(cy-sy)*e+Math.sin(ang)*rad*.6*Math.sin(e*Math.PI);
       p.vx=p.vy=0;
-      for(let k=0;k<3;k++) add({x:p.x+(Math.random()-.5)*6,y:p.y+(Math.random()-.5)*6,vx:(Math.random()-.5)*1.2,vy:(Math.random()-.2)*1.2,g:.02,r:1+Math.random()*2.6,life:.8+Math.random()*.9});
+      for(let k=0;k<3;k++) add({x:p.x+(Math.random()-.5)*6,y:p.y+(Math.random()-.5)*6,vx:(Math.random()-.5)*.6,vy:(Math.random()-.2)*.6,g:.008,r:1+Math.random()*2.6,life:1.6+Math.random()*1.6});
       if(t>=1 && !p.burst){ p.burst=true; p.life=0; burst(p.x,p.y,90); done&&done(); }
     }});
     go();
   }
   function burst(bx,by,n){
-    for(let i=0;i<n;i++){ const a=Math.random()*6.283, s=2+Math.random()*7;
-      add({x:bx,y:by,vx:Math.cos(a)*s,vy:Math.sin(a)*s,g:.05,r:1.4+Math.random()*3.4,life:1+Math.random()*1.2}); }
+    for(let i=0;i<n;i++){ const a=Math.random()*6.283, s=1+Math.random()*3.2;
+      add({x:bx,y:by,vx:Math.cos(a)*s,vy:Math.sin(a)*s,g:.015,r:1.4+Math.random()*3.4,life:2.2+Math.random()*1.8}); }
     go();
   }
   function shower(n){
-    for(let i=0;i<n;i++) add({x:Math.random()*w,y:-20-Math.random()*h*.4,vx:(Math.random()-.5)*.8,vy:1.5+Math.random()*2.5,g:.02,r:1.2+Math.random()*3,life:2+Math.random()*1.5});
+    for(let i=0;i<n;i++) add({x:Math.random()*w,y:-20-Math.random()*h*.4,vx:(Math.random()-.5)*.8,vy:.7+Math.random()*1.1,g:.004,r:1.2+Math.random()*3,life:4+Math.random()*2.5});
     go();
   }
   return {fairy,burst,shower};
