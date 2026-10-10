@@ -326,8 +326,34 @@ section,.band,.hero,.rsvp,.dark{overflow-x:clip}
 
 /* until the invitation opens, show only the cover/video (no page peeking under the phone's browser bar) */
 html.pre,html.pre body{background:#000!important;overflow:hidden;height:100%}
-html.pre body > :not(#cover):not(#intro):not(#petals){visibility:hidden!important}
+html.pre body > :not(#cover):not(#intro):not(#petals):not(#fx){visibility:hidden!important}
 #cover{top:0!important;bottom:0!important;height:auto!important;min-height:100vh;min-height:100lvh}
+
+/* ===== magic transitions ===== */
+#fx{position:fixed;inset:0;z-index:10001;pointer-events:none}
+/* the cover glows while the fairy flies */
+body.magic #cover .cover-in{animation:glowup 1.3s ease forwards}
+@keyframes glowup{to{filter:brightness(1.25) blur(1px);transform:scale(1.03);opacity:.85}}
+#cover .btn{position:relative;overflow:hidden}
+#cover .btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,240,210,.55) 50%,transparent 70%);transform:translateX(-120%);animation:shine 3.2s ease-in-out infinite}
+@keyframes shine{60%,100%{transform:translateX(120%)}}
+/* the video fades in out of a soft golden light */
+#intro{opacity:0;transition:opacity 1s ease!important}
+#intro.show{opacity:1}
+#intro::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 45%,rgba(255,236,200,.95),rgba(255,236,200,0) 70%);opacity:0}
+#intro.show::after{animation:bloomout 1.4s ease}
+@keyframes bloomout{0%{opacity:1}100%{opacity:0}}
+/* when the video ends: the video shrinks away in a circle of light and the invitation rises in */
+#intro.out{opacity:1!important;animation:iris 1.3s cubic-bezier(.7,0,.3,1) forwards}
+@keyframes iris{0%{clip-path:circle(150% at 50% 45%)}100%{clip-path:circle(0% at 50% 45%)}}
+body.reveal .hero .arch-card{animation:riseIn 1.5s cubic-bezier(.2,.8,.2,1) both .35s}
+body.reveal .hero-photo{animation:riseIn 1.5s cubic-bezier(.2,.8,.2,1) both .6s}
+body.reveal .bq{animation:bloom 1.6s cubic-bezier(.2,.9,.3,1.2) both .5s}
+body.reveal nav{animation:fadeIn 1s ease both .9s}
+@keyframes riseIn{from{opacity:0;transform:translateY(40px) scale(.96);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes bloom{from{opacity:0;scale:.4}to{opacity:1;scale:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){#fx{display:none} body.reveal *{animation-duration:.01s!important} #intro.out{animation:none;opacity:0!important;transition:opacity .4s!important}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -715,20 +741,24 @@ let opened=false, introTimer=null;
 function showInvite(){
   const i=$("intro"); if(i.classList.contains("out")) return;
   clearTimeout(introTimer); i.classList.add("out"); document.documentElement.classList.remove("pre");
+  document.body.classList.add("reveal"); setTimeout(()=>document.body.classList.remove("reveal","magic"),2600);
+  FX.burst(innerWidth/2,innerHeight*.45,120); setTimeout(()=>FX.shower(70),250);
   document.body.classList.remove("locked"); scrollTo(0,0);
   if(song&&!userPaused&&song.paused){ playSong(); }
   try{ if(document.fullscreenElement) document.exitFullscreen(); else if(document.webkitFullscreenElement) document.webkitExitFullscreen(); }catch(e){}
   startPetals();
   armedAt=Date.now(); lastY=scrollY;
-  setTimeout(()=>{ i.hidden=true; $("introVid").pause(); },1150);
+  setTimeout(()=>{ i.hidden=true; $("introVid").pause(); },1300);
 }
 function openInvite(){
   if(opened) return; opened=true;
   const v=$("introVid"), i=$("intro");
-  $("cover").classList.add("out"); setTimeout(()=>$("cover").hidden=true,1250);
-  if(!W.introVideo){ i.hidden=true; showInvite(); return; }
+  const b=$("openBtn").getBoundingClientRect();
+  document.body.classList.add("magic");
+  FX.fairy(b.left+b.width/2,b.top+b.height/2,()=>{ $("cover").classList.add("out"); setTimeout(()=>$("cover").hidden=true,900); i.classList.add("show"); });
+  if(!W.introVideo){ setTimeout(()=>{ $("cover").classList.add("out"); i.hidden=true; showInvite(); },1300); return; }
   playSong();                           /* the song starts with the video and keeps going */
-  try{ const fs=i.requestFullscreen||i.webkitRequestFullscreen; if(fs) { const r=fs.call(i,{navigationUI:"hide"}); if(r&&r.catch) r.catch(()=>{}); } }catch(e){}
+  try{ const d=document.documentElement, fs=d.requestFullscreen||d.webkitRequestFullscreen; if(fs) { const r=fs.call(d,{navigationUI:"hide"}); if(r&&r.catch) r.catch(()=>{}); } }catch(e){}
   $("introBlur").style.backgroundImage=`url("${W.introPoster}")`; v.poster=W.introPoster;
   i.hidden=false;
   v.onended=showInvite; v.onerror=showInvite;
@@ -738,6 +768,58 @@ function openInvite(){
   introTimer=setTimeout(showInvite,45000);
 }
 $("skipBtn").onclick=showInvite;
+/* ===== magic: fairy dust on "Open invitation", sparkle reveal when the video ends ===== */
+const FX=(function(){
+  const c=document.createElement("canvas"); c.id="fx"; c.setAttribute("aria-hidden","true"); document.body.append(c);
+  const x=c.getContext("2d"); let w,h,dpr; const P=[]; let running=false;
+  const size=()=>{ dpr=Math.min(2,devicePixelRatio||1); w=innerWidth; h=innerHeight; c.width=w*dpr; c.height=h*dpr; x.setTransform(dpr,0,0,dpr,0,0); };
+  size(); addEventListener("resize",size);
+  const cols=["#fff6d8","#ffe3a3","#f6c58f","#ffffff","#f9cfd3","#ffd9b8"];
+  function star(px,py,r,rot,col,a){
+    x.save(); x.translate(px,py); x.rotate(rot); x.globalAlpha=a;
+    const g=x.createRadialGradient(0,0,0,0,0,r*2.6); g.addColorStop(0,col); g.addColorStop(1,"rgba(255,240,200,0)");
+    x.fillStyle=g; x.beginPath(); x.arc(0,0,r*2.6,0,6.283); x.fill();
+    x.fillStyle="#fff"; x.beginPath();
+    for(let i=0;i<8;i++){ const rr=i%2?r*.28:r; const an=i*Math.PI/4; x.lineTo(Math.cos(an)*rr,Math.sin(an)*rr); }
+    x.closePath(); x.fill(); x.restore();
+  }
+  function add(p){ P.push(Object.assign({vx:0,vy:0,g:0,r:2,life:1,age:0,rot:Math.random()*6,vr:(Math.random()-.5)*.2,col:cols[(Math.random()*cols.length)|0],tw:Math.random()*6},p)); }
+  function loop(){
+    x.clearRect(0,0,w,h);
+    for(let i=P.length-1;i>=0;i--){ const p=P[i];
+      if(p.orb){ p.orb(p); }
+      p.age+=1/60; p.x+=p.vx; p.y+=p.vy; p.vy+=p.g; p.vx*=.985; p.vy*=.985; p.rot+=p.vr; p.tw+=.3;
+      const k=1-p.age/p.life; if(k<=0){ P.splice(i,1); continue; }
+      star(p.x,p.y,p.r*(.7+.3*Math.sin(p.tw)),p.rot,p.col,Math.min(1,k*1.4));
+    }
+    if(P.length){ requestAnimationFrame(loop); } else { running=false; x.clearRect(0,0,w,h); }
+  }
+  function go(){ if(!running){ running=true; requestAnimationFrame(loop); } }
+  /* a little fairy flies from the button in a swirl, sprinkling dust, then bursts */
+  function fairy(sx,sy,done){
+    const t0=performance.now(), dur=1300, cx=w/2, cy=h*.42;
+    add({x:sx,y:sy,r:7,life:dur/1000+.2,col:"#fffbe8",orb:p=>{
+      const t=Math.min(1,(performance.now()-t0)/dur), e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+      const ang=e*Math.PI*3.2, rad=(1-e)*Math.min(w,h)*.32+20;
+      p.x=sx+(cx-sx)*e+Math.cos(ang)*rad*Math.sin(e*Math.PI); p.y=sy+(cy-sy)*e+Math.sin(ang)*rad*.6*Math.sin(e*Math.PI);
+      p.vx=p.vy=0;
+      for(let k=0;k<3;k++) add({x:p.x+(Math.random()-.5)*6,y:p.y+(Math.random()-.5)*6,vx:(Math.random()-.5)*1.2,vy:(Math.random()-.2)*1.2,g:.02,r:1+Math.random()*2.6,life:.8+Math.random()*.9});
+      if(t>=1 && !p.burst){ p.burst=true; p.life=0; burst(p.x,p.y,90); done&&done(); }
+    }});
+    go();
+  }
+  function burst(bx,by,n){
+    for(let i=0;i<n;i++){ const a=Math.random()*6.283, s=2+Math.random()*7;
+      add({x:bx,y:by,vx:Math.cos(a)*s,vy:Math.sin(a)*s,g:.05,r:1.4+Math.random()*3.4,life:1+Math.random()*1.2}); }
+    go();
+  }
+  function shower(n){
+    for(let i=0;i<n;i++) add({x:Math.random()*w,y:-20-Math.random()*h*.4,vx:(Math.random()-.5)*.8,vy:1.5+Math.random()*2.5,g:.02,r:1.2+Math.random()*3,life:2+Math.random()*1.5});
+    go();
+  }
+  return {fairy,burst,shower};
+})();
+
 /* falling petals: start once the invitation is open */
 let petalsOn=false;
 function startPetals(){ if(petalsOn) return; petalsOn=true;
