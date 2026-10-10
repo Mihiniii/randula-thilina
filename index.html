@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Randula &amp; Thilina · 27.01.2027</title>
 <meta name="description" content="You are invited to the wedding of Randula &amp; Thilina · Wednesday, 27 January 2027 · Eagle Hall, Waters Edge">
-<meta name="theme-color" content="#fffaf6">
+<meta name="theme-color" content="#3a2a22">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Randula &amp; Thilina · 27.01.2027">
 <meta property="og:description" content="You are warmly invited to celebrate our wedding. Tap to open your invitation.">
@@ -361,6 +361,12 @@ body.reveal nav{animation:fadeIn 1.8s ease both 2.2s}
 #fsBtn{left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;padding:16px 26px!important;font-size:11px!important;letter-spacing:.3em!important;background:rgba(20,14,10,.35)!important;border-color:rgba(255,240,215,.75)!important;animation:fsPulse 2.6s ease-in-out infinite}
 #fsBtn::before{content:"⤢";font-size:15px;letter-spacing:0;margin-right:10px;vertical-align:-1px}
 @keyframes fsPulse{50%{box-shadow:0 0 0 10px rgba(255,236,200,.12)}}
+
+/* cover photo runs edge to edge, under the phone's status bar and browser bar */
+html.pre:not(.vid),html.pre:not(.vid) body{background:#3a2a22 url("assets/cover.jpg") 56% 50%/cover no-repeat!important}
+html.pre.vid,html.pre.vid body{background:#000!important}
+#cover{top:calc(-1 * env(safe-area-inset-top,0px))!important;bottom:calc(-1 * env(safe-area-inset-bottom,0px))!important;min-height:calc(100lvh + env(safe-area-inset-top,0px) + env(safe-area-inset-bottom,0px))}
+#cover .cover-in{padding-top:calc(24px + env(safe-area-inset-top,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -748,7 +754,7 @@ document.body.classList.add("locked"); document.documentElement.classList.add("p
 let opened=false, introTimer=null;
 function showInvite(){
   const i=$("intro"); if(i.classList.contains("out")) return;
-  clearTimeout(introTimer); i.classList.add("out"); document.documentElement.classList.remove("pre");
+  clearTimeout(introTimer); i.classList.add("out"); document.documentElement.classList.remove("pre","vid");
   document.body.classList.add("reveal"); setTimeout(()=>document.body.classList.remove("reveal","magic"),5200);
   FX.burst(innerWidth/2,innerHeight*.45,110); setTimeout(()=>FX.shower(60),600);
   document.body.classList.remove("locked"); scrollTo(0,0);
@@ -764,7 +770,7 @@ function openInvite(){
   const v=$("introVid"), i=$("intro");
   const b=$("openBtn").getBoundingClientRect();
   document.body.classList.add("magic");
-  FX.fairy(b.left+b.width/2,b.top+b.height/2,()=>{ $("cover").classList.add("out"); setTimeout(()=>$("cover").hidden=true,1800); i.classList.add("show"); if(iosFS()) setTimeout(()=>{ if(!i.classList.contains("out")) $("fsBtn").hidden=false; },900); });
+  FX.fairy(b.left+b.width/2,b.top+b.height/2,()=>{ $("cover").classList.add("out"); setTimeout(()=>$("cover").hidden=true,1800); i.classList.add("show"); document.documentElement.classList.add("vid"); if(iosFS()) setTimeout(()=>{ if(!i.classList.contains("out")) $("fsBtn").hidden=false; },900); });
   if(!W.introVideo){ setTimeout(()=>{ $("cover").classList.add("out"); i.hidden=true; showInvite(); },2800); return; }
   playSong();                           /* the song starts with the video and keeps going */
   try{ const d=document.documentElement, fs=d.requestFullscreen||d.webkitRequestFullscreen; if(fs) { const r=fs.call(d,{navigationUI:"hide"}); if(r&&r.catch) r.catch(()=>{}); } }catch(e){}
