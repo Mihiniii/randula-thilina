@@ -316,13 +316,18 @@ section,.band,.hero,.rsvp,.dark{overflow-x:clip}
 .guest-name{display:block;font:400 clamp(30px,6vw,40px)/1.3 var(--f-script);font-style:normal;color:var(--accent);margin:6px 0}
 
 /* full-screen engagement video: nothing from the invitation shows until it ends */
-#intro{z-index:9999!important;top:0;left:0;right:0;bottom:auto!important;width:100%;height:100vh;height:100lvh;background:#000!important}
+#intro{z-index:9999!important;top:0!important;left:0;right:0;bottom:0!important;width:100%;height:auto!important;min-height:100vh;min-height:100lvh;background:#000!important}
 #intro:fullscreen{width:100vw;height:100vh}
 #intro .blur{display:none}
 #intro video{object-fit:cover!important}
 @media (min-aspect-ratio:4/3){ #intro .blur{display:block} #intro video{object-fit:contain!important} }
 #cover{transition:opacity .6s ease,visibility .6s!important}
 #skipBtn{z-index:3}
+
+/* until the invitation opens, show only the cover/video (no page peeking under the phone's browser bar) */
+html.pre,html.pre body{background:#000!important;overflow:hidden;height:100%}
+html.pre body > :not(#cover):not(#intro):not(#petals){visibility:hidden!important}
+#cover{top:0!important;bottom:0!important;height:auto!important;min-height:100vh;min-height:100lvh}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -705,11 +710,11 @@ let armedAt=0, lastY=0;
 
 
 /* open → video → invitation */
-document.body.classList.add("locked");
+document.body.classList.add("locked"); document.documentElement.classList.add("pre");
 let opened=false, introTimer=null;
 function showInvite(){
   const i=$("intro"); if(i.classList.contains("out")) return;
-  clearTimeout(introTimer); i.classList.add("out");
+  clearTimeout(introTimer); i.classList.add("out"); document.documentElement.classList.remove("pre");
   document.body.classList.remove("locked"); scrollTo(0,0);
   if(song&&!userPaused&&song.paused){ playSong(); }
   try{ if(document.fullscreenElement) document.exitFullscreen(); else if(document.webkitFullscreenElement) document.webkitExitFullscreen(); }catch(e){}
