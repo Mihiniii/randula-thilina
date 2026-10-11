@@ -6,8 +6,10 @@ Digital wedding invitation website for **27 January 2027**, hosted free on Netli
 
 ## Guest links
 
-`links.html` is a private helper page that makes a personal invitation link for each guest.
-It is kept out of this repository on purpose, so the guest list stays private.
+`links.html` is a helper page that makes a personal invitation link for each guest:
+https://randula-thilina.netlify.app/links.html
+
+Guest names are saved only in the browser of the person using the page, never on GitHub.
 
 ## What guests see
 
@@ -20,7 +22,7 @@ It is kept out of this repository on purpose, so the guest list stays private.
 
 ```
 index.html            the whole invitation (edit details in the "EDIT YOUR DETAILS HERE" block)
-links.html            helper page to create personal links for each guest (kept on my computer, not in this repo)
+links.html            helper page to create personal links for each guest (not for guests)
 assets/
   cover.jpg           opening cover photo (full screen)
   preview.jpg         WhatsApp / Facebook link preview (1200 x 630)
@@ -71,7 +73,7 @@ The cover then shows **Dear Sachini and Family**. Hyphens become spaces; `?to=Na
 
 To make links for everyone at once:
 
-1. Open **links.html** (shared privately with the couple).
+1. Open **links.html** (link above).
 2. Paste the guest list, one name per line, and press **Create links**.
 3. For each guest: **Preview**, **Copy link**, **Copy message**, or **WhatsApp** (opens WhatsApp with the full invitation message filled in).
 4. Edit the WhatsApp message box if needed — `{name}` and `{link}` are replaced automatically.
