@@ -49,9 +49,9 @@ button.ghost{background:transparent;color:var(--ink)}
     <label for="names">Guest names</label>
     <textarea id="names" placeholder="Mr. &amp; Mrs. Perera&#10;Nimal &amp; Family&#10;Sachini"></textarea>
     <label for="base">Invitation website</label>
-    <input id="base" value="https://randula-thilina.netlify.app/">
+    <input id="base" value="https://mihiniii.github.io/randula-thilina/">
     <label for="msg">WhatsApp message</label>
-    <textarea id="msg" style="min-height:96px">Dear {name},
+    <textarea id="msg" style="min-height:300px">Dear {name},
 
 With joyful hearts, we warmly invite you to celebrate our wedding 💍
 
@@ -66,7 +66,7 @@ Kindly let us know if you can join us by 10 January 2027 using the RSVP in the i
 
 With love,
 Randula &amp; Thilina 🤍</textarea>
-
+    <p class="hint">{name} and {link} are replaced for each guest.</p>
     <div class="row">
       <button type="button" id="make">Create links</button>
       <button type="button" class="ghost" id="copyAll">Copy all links</button>
@@ -82,7 +82,8 @@ const $=id=>document.getElementById(id);
 const el=(t,p={},k=[])=>{const n=Object.assign(document.createElement(t),p);n.append(...k);return n;};
 let rows=[];
 function slug(name){ return name.replace(/&/g," and ").replace(/[^\p{L}\p{N}.']+/gu,"-").replace(/^-+|-+$/g,""); }
-function linkFor(name){ let b=($("base").value.trim()||"https://randula-thilina.netlify.app/").replace(/[?#].*$/,""); if(!b.endsWith("/")) b+="/"; return b+"#"+encodeURI(slug(name)); }
+const SITE="https://mihiniii.github.io/randula-thilina/";
+function linkFor(name){ let b=($("base").value.trim()||SITE).replace(/[?#].*$/,""); if(/netlify\.app/i.test(b)){ b=SITE; $("base").value=SITE; } if(!b.endsWith("/")) b+="/"; return b+"#"+encodeURI(slug(name)); }
 function msgFor(name,link){ return $("msg").value.replaceAll("{name}",name).replaceAll("{link}",link); }
 async function copy(text,btn){
   try{ await navigator.clipboard.writeText(text); }
@@ -102,11 +103,13 @@ function render(){
     L.append(el("div",{className:"item"},[el("div",{className:"nm",textContent:r.name}), el("div",{className:"act"},[op,cp,cm,wa]), el("div",{className:"url",textContent:r.link})]));
   });
   $("count").textContent=rows.length+" link"+(rows.length>1?"s":"")+" ready";
-  try{ localStorage.setItem("rt-guests",$("names").value); }catch(e){}
+  try{ localStorage.setItem("rt-guests",$("names").value); localStorage.setItem("rt-msg",$("msg").value); }catch(e){}
 }
 $("make").onclick=render;
 $("copyAll").onclick=e=>{ if(!rows.length) render(); copy(rows.map(r=>r.name+"\t"+r.link).join("\n"),e.currentTarget); };
-try{ const saved=localStorage.getItem("rt-guests"); if(saved){ $("names").value=saved; render(); } }catch(e){}
+$("base").value=SITE;
+try{ const m=localStorage.getItem("rt-msg"); if(m) $("msg").value=m.replace(/https?:\/\/[a-z0-9-]+\.netlify\.app\/?/gi,SITE); const saved=localStorage.getItem("rt-guests"); if(saved){ $("names").value=saved; render(); } }catch(e){}
+$("msg").addEventListener("input",()=>{ try{ localStorage.setItem("rt-msg",$("msg").value); }catch(e){} if(rows.length) render(); });
 </script>
 </body>
 </html>
