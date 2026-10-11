@@ -236,8 +236,7 @@ nav a:hover{color:var(--gold)}
 .st:nth-child(3n) .img{border-radius:2px}
 .st img{width:100%;height:100%;object-fit:cover;transition:transform 1.6s cubic-bezier(.2,.7,.2,1)}
 .st:hover img{transform:scale(1.05)}
-.st .cap{display:grid;grid-template-columns:auto 1fr;column-gap:14px;align-items:baseline;padding-inline:4px}
-.st .no{grid-row:span 2;font:400 13px var(--f-names);letter-spacing:.2em;color:var(--gold);padding-top:4px}
+.st .cap{display:grid;padding-inline:4px}
 .st strong{font:400 26px/1.15 var(--f-display);font-style:italic}
 .st em{font:400 10px/1.6 var(--f-ui);font-style:normal;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
 .story-ctrl{display:flex;align-items:center;gap:20px;max-width:560px;margin:6px auto 0}
@@ -736,11 +735,10 @@ function tick(){ const s=Math.max(0,Math.floor((target-Date.now())/1000));
 tick(); setInterval(tick,1000);
 
 /* gallery + viewer */
-const roman=["I","II","III","IV","V","VI","VII","VIII","IX","X"];
 W.gallery.forEach(([src,cap,sub],i)=>{
   const b=el("button",{className:"st"+(i%2?" low":""),type:"button"}); b.setAttribute("aria-label","Open photo: "+cap);
   b.append(el("div",{className:"img"},[el("img",{src,alt:cap,loading:i<3?"eager":"lazy"})]),
-           el("div",{className:"cap"},[el("span",{className:"no",textContent:roman[i]}),el("strong",{textContent:cap}),el("em",{textContent:sub})]));
+           el("div",{className:"cap"},[el("strong",{textContent:cap}),el("em",{textContent:sub})]));
   b.onclick=()=>openLB(i); $("track").append(b);
 });
 const track=$("track");
