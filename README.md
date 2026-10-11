@@ -1,66 +1,105 @@
 # Randula & Thilina — Wedding Invitation
 
-Digital wedding invitation website, hosted free on GitHub Pages.
+Digital wedding invitation website for **27 January 2027**, hosted free on GitHub Pages.
+
+**Live site:** https://mihiniii.github.io/randula-thilina/
+**Guest links page:** https://mihiniii.github.io/randula-thilina/links.html
+
+## What guests see
+
+1. **Cover** — full-screen photo with the couple's names and date. A personal link shows *Dear {guest name}* on top.
+2. **Open invitation** — a little fairy flies out of the button sprinkling dust, then the intro video plays full screen (with a **Skip** button at the top right).
+3. **Sparkle reveal** — when the video ends, the invitation opens: welcome, events, our story gallery, venue map and RSVP.
+4. **Music** — the song starts after the guest taps; the round button at the bottom right pauses / plays it.
 
 ## Files
 
 ```
-index.html          the whole invitation (edit details in the "EDIT YOUR DETAILS HERE" block)
+index.html            the whole invitation (edit details in the "EDIT YOUR DETAILS HERE" block)
+links.html            helper page to create personal links for each guest (not for guests)
 assets/
-  preview.jpg       WhatsApp / Facebook link preview (1200 x 630) — replace with your own
-  couple.jpg        couple photo (portrait, 3:4 works best)
-  gallery-1.jpg … gallery-6.jpg
-  hero.mp4          background video at the top (10–20 s, muted, under 10 MB)
-  intro.mp4         entrance video after the doors open (optional)
-  song.mp3          background song
+  cover.jpg           opening cover photo (full screen)
+  preview.jpg         WhatsApp / Facebook link preview (1200 x 630)
+  intro.mp4           entrance video after "Open invitation" (keep under 10 MB)
+  intro-poster.jpg    first frame shown while the video loads
+  song.mp3            background song
+  couple.jpg          welcome section photo (portrait, 3:4)
+  band.jpg            wide photo band between sections
+  events.jpg          events section photo
+  rsvp.jpg            RSVP section photo
+  story-1.jpg … story-8.jpg   "our story" gallery
 ```
 
-Any file that is missing simply shows the built-in placeholder (or the built-in melody / animated intro), so the site never breaks.
+To change a photo, replace the file with a new one **using the same name**.
 
 ## Edit details
 
-Open `index.html`, find `EDIT YOUR DETAILS HERE` and change names, date, venue, `mapLink`, `mapQuery`, WhatsApp number, story, events and the welcome note.
-Also update the `og:` lines at the top if your GitHub Pages address is different.
+Open `index.html`, find `EDIT YOUR DETAILS HERE` (near the bottom) and change:
 
-## RSVP with Google Forms (replies go straight into a Google Sheet)
+| Setting       | What it is                                              |
+|---------------|---------------------------------------------------------|
+| `date`, `end` | ceremony start / end time (used for countdown and calendar) |
+| `venue`, `mapQuery`, `mapLink` | venue name, embedded map, "Open in Maps" link |
+| `rsvpFormUrl` | Google Form link opened by **Reply to the invitation** |
+| `whatsapp`    | phone number shown under the RSVP button                |
+| `introVideo`, `introPoster`, `song` | video, poster and music files     |
+| `gallery`     | story photos with their titles and captions             |
 
-1. Go to https://forms.google.com and create a form with these 5 questions, in this order:
-   - **Full name** (Short answer, required)
-   - **Attending** (Multiple choice) with exactly two options: `Joyfully accepts` and `Regretfully declines`
-   - **Number of guests** (Short answer)
-   - **Phone number** (Short answer)
-   - **Wish for the couple** (Paragraph)
+Names and other text are written directly in the HTML. Also update the `og:` lines at the top if the GitHub Pages address changes.
+
+## RSVP (Google Form)
+
+1. Create a form at https://forms.google.com (name, attending, number of guests, phone, wishes).
 2. In the form, open **Responses → Link to Sheets** so every reply lands in a spreadsheet.
-3. Click the **⋮ menu → Get pre-filled link**, type anything into every question (e.g. `a`), choose `Joyfully accepts`, then **Get link → Copy link**.
-4. Send that copied link to Claude (or fill it in yourself): the link contains `entry.123456789=` numbers, one per question.
-   In `index.html` set:
-   - `action` to the form link with `viewform...` replaced by `formResponse`
-     (e.g. `https://docs.google.com/forms/d/e/1FAIpQL.../formResponse`)
-   - `name`, `attending`, `guests`, `phone`, `message` to the matching `entry.…` numbers.
-5. Commit and push. Guests now tap **Send RSVP**, see a thank-you message, and their reply appears in your Google Sheet.
+3. Click **Send → link** and copy it into `rsvpFormUrl` in `index.html`.
 
-If `action` is left empty, the RSVP button falls back to WhatsApp.
+The **Reply to the invitation** button opens the form in a new tab.
 
-## Publish on GitHub Pages
+## Personal guest links
 
-1. Create a new **public** repository on GitHub named `randula-thilina`.
-2. Upload these files (or push them from your computer):
-   ```bash
-   git init
-   git add .
-   git commit -m "Wedding invitation"
-   git branch -M main
-   git remote add origin https://github.com/Mihiniii/randula-thilina.git
-   git push -u origin main
-   ```
-3. In the repository: **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main` / `(root)` → Save**.
-4. After about a minute the site is live at:
-   **https://mihiniii.github.io/randula-thilina/**
+Each guest can get a link with their name, e.g.
 
-Every time you change something, commit and push again; the site updates in a minute.
+```
+https://mihiniii.github.io/randula-thilina/#Sachini-and-Family
+```
+
+The cover then shows **Dear Sachini and Family**. Hyphens become spaces; `?to=Name` also works.
+
+To make links for everyone at once:
+
+1. Open **links.html** (link above).
+2. Paste the guest list, one name per line, and press **Create links**.
+3. For each guest: **Preview**, **Copy link**, **Copy message**, or **WhatsApp** (opens WhatsApp with the full invitation message filled in).
+4. Edit the WhatsApp message box if needed — `{name}` and `{link}` are replaced automatically.
+
+The guest list is remembered in your browser, so you can come back later.
+
+## Try it on your computer
+
+Open a terminal in this folder and run:
+
+```bash
+python -m http.server 8000
+```
+
+Then open http://localhost:8000 (or http://localhost:8000/#Your-Name to test a personal link) and http://localhost:8000/links.html.
+Opening `index.html` by double-clicking also works, but the video and music behave more like the real site through a local server.
+
+## Publish changes
+
+The repository is already connected to GitHub. After editing:
+
+```bash
+git add .
+git commit -m "Describe your change"
+git push
+```
+
+The site updates in about a minute. (GitHub Pages: **Settings → Pages → Deploy from a branch → `main` / `(root)`**.)
 
 ## Before sending to guests
 
-- Open the link on your own phone: doors, music, video, map and the RSVP button.
-- Send it to yourself on WhatsApp to check the preview card.
-- Keep videos small (under 10 MB) so guests with slow data can open it quickly.
+- Open the link on your own phone (iPhone and Android): cover, fairy dust, video, Skip, music, map and RSVP.
+- Open a personal link and check the *Dear …* name.
+- Send a link to yourself on WhatsApp to check the preview card.
+- Keep the video small (under 10 MB) so guests with slow data can open it quickly.
