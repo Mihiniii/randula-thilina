@@ -1,8 +1,9 @@
 # Randula & Thilina — Wedding Invitation
 
-Digital wedding invitation website for **27 January 2027**, hosted free on GitHub Pages.
+Digital wedding invitation website for **27 January 2027**, hosted free on Netlify.
 
-**Live site:** https://mihiniii.github.io/randula-thilina/
+**Live site:** https://randula-thilina.netlify.app/
+
 ## Guest links
 
 `links.html` is a private helper page that makes a personal invitation link for each guest.
@@ -19,7 +20,7 @@ It is kept out of this repository on purpose, so the guest list stays private.
 
 ```
 index.html            the whole invitation (edit details in the "EDIT YOUR DETAILS HERE" block)
-links.html            helper page to create personal links for each guest (not for guests)
+links.html            helper page to create personal links for each guest (kept on my computer, not in this repo)
 assets/
   cover.jpg           opening cover photo (full screen)
   preview.jpg         WhatsApp / Facebook link preview (1200 x 630)
@@ -48,7 +49,7 @@ Open `index.html`, find `EDIT YOUR DETAILS HERE` (near the bottom) and change:
 | `introVideo`, `introPoster`, `song` | video, poster and music files     |
 | `gallery`     | story photos with their titles and captions             |
 
-Names and other text are written directly in the HTML. Also update the `og:` lines at the top if the GitHub Pages address changes.
+Names and other text are written directly in the HTML. Also update the `og:` lines at the top if the site address changes.
 
 ## RSVP (Google Form)
 
@@ -63,14 +64,14 @@ The **Reply to the invitation** button opens the form in a new tab.
 Each guest can get a link with their name, e.g.
 
 ```
-https://mihiniii.github.io/randula-thilina/#Sachini-and-Family
+https://randula-thilina.netlify.app/#Sachini-and-Family
 ```
 
 The cover then shows **Dear Sachini and Family**. Hyphens become spaces; `?to=Name` also works.
 
 To make links for everyone at once:
 
-1. Open **links.html** (link above).
+1. Open **links.html** (shared privately with the couple).
 2. Paste the guest list, one name per line, and press **Create links**.
 3. For each guest: **Preview**, **Copy link**, **Copy message**, or **WhatsApp** (opens WhatsApp with the full invitation message filled in).
 4. Edit the WhatsApp message box if needed — `{name}` and `{link}` are replaced automatically.
@@ -90,15 +91,19 @@ Opening `index.html` by double-clicking also works, but the video and music beha
 
 ## Publish changes
 
-The repository is already connected to GitHub. After editing:
+1. Save the code to GitHub:
 
-```bash
-git add .
-git commit -m "Describe your change"
-git push
-```
+   ```bash
+   git add .
+   git commit -m "Describe your change"
+   git push
+   ```
 
-The site updates in about a minute. (GitHub Pages: **Settings → Pages → Deploy from a branch → `main` / `(root)`**.)
+2. Update the live site on Netlify:
+   - Make a folder with only `index.html`, `links.html` and the `assets` folder (do not include the `.git` folder).
+   - Drag that folder onto the **Deploys** page of the Netlify project.
+
+The site updates in a few seconds.
 
 ## Before sending to guests
 
