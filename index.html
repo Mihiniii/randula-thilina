@@ -463,7 +463,7 @@ html.pre:not(.vid),html.pre:not(.vid) body{background-color:var(--edge-bot,#3a2a
     <p class="label">A note from us</p>
     <h2 class="h2">Dearest family <em>&amp;</em> friends</h2>
     <svg class="spray" aria-hidden="true"><use href="#spray"/></svg>
-    <p class="note">With hearts full of love and gratitude, we invite you to witness the beginning of our forever. As we promise each other a lifetime of love, we would be truly happy to have you by our side on this beautiful and unforgettable day.</p>
+    <p class="note">With hearts full of love and gratitude, we invite you to witness the beginning of our forever. As we promise each other a lifetime of love, we would be truly happy to have you by our side on this beautiful and unforgettable day. 🤍💍✨</p>
     <p class="sign">Randula &amp; Thilina</p>
   </div></div>
 </section>
@@ -648,7 +648,6 @@ const el = (t,p={},k=[]) => { const n=Object.assign(document.createElement(t),p)
   }catch(e){}
   name=name.replace(/\s+/g," ").trim().slice(0,70);
   if(!name) return;
-  const d=$("dearCover"); d.querySelector("span").textContent=name; d.hidden=false;
   const l=$("heroLede"); l.replaceChildren("request the honour of the presence of ", el("strong",{className:"guest-name",textContent:name}), " as they begin their life together");
   document.title = name + " · Randula & Thilina";
 })();
