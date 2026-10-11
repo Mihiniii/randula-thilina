@@ -3,7 +3,10 @@
 Digital wedding invitation website for **27 January 2027**, hosted free on GitHub Pages.
 
 **Live site:** https://mihiniii.github.io/randula-thilina/
-**Guest links page:** https://mihiniii.github.io/randula-thilina/links.html
+## Guest links
+
+`links.html` is a private helper page that makes a personal invitation link for each guest.
+It is kept out of this repository on purpose, so the guest list stays private.
 
 ## What guests see
 
