@@ -135,6 +135,9 @@ nav a:hover{color:var(--gold)}
 .ev-list{display:flex;flex-direction:column}
 .ev{display:grid;grid-template-columns:96px 1fr;gap:28px;padding-block:32px;border-top:1px solid var(--line)}
 .ev:last-child{border-bottom:1px solid var(--line)}
+.ev-list{width:100%;max-width:440px}
+.ev:only-child{grid-template-columns:1fr;justify-items:center;gap:20px;text-align:center;padding-block:36px}
+.ev:only-child time{font-size:44px}
 .ev time{font:300 34px/1 var(--f-display);font-variant-numeric:tabular-nums}
 .ev time small{display:block;margin-top:8px;font:400 10px var(--f-ui);letter-spacing:.32em;color:var(--gold)}
 .ev h3{font:400 28px/1.15 var(--f-display);margin:0 0 6px}
@@ -226,6 +229,7 @@ nav a:hover{color:var(--gold)}
 
 /* ===== our story (horizontal) ===== */
 .gallery{padding-bottom:clamp(70px,9vw,110px)}
+.gallery,#venue{padding-top:clamp(40px,5vw,70px)}
 .gallery .lede{max-width:46ch}
 .story{margin-top:48px}
 .track{display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px max(20px,calc((100vw - 1120px)/2)) 34px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -486,7 +490,7 @@ html.pre:not(.vid),html.pre:not(.vid) body{background-color:#2b211c!important}
 <!-- events -->
 <section class="events" id="events">
   <div class="wrap">
-    <div class="center" style="align-items:stretch;text-align:left">
+    <div class="center">
       <p class="label">Wednesday · 27 January 2027</p>
       <h2 class="h2">The Details</h2>
       <div class="ev-list">
